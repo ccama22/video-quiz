@@ -111,7 +111,9 @@ export const navLinkBack ={
   fontSize: '17px', 
   fontWeight: 'bold',
   textDecoration: 'none',
-  marginLeft:'15px' 
+  marginLeft:'15px',
+  backgroundColor:'white',
+  border: 'none'
 }
 
 export const navLinkfollowing ={
@@ -119,7 +121,9 @@ export const navLinkfollowing ={
   fontSize: '17px', 
   fontWeight: 'bold',
   textDecoration: 'none',
-  marginLeft:'15px' 
+  marginLeft:'15px',
+  backgroundColor:'white',
+  border: 'none'
 }
 
 export const containerVideo ={

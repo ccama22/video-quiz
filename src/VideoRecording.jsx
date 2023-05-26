@@ -1,19 +1,25 @@
-import { useEffect, useRef, useState } from "react";
-import { NavLink, useLocation, useNavigate} from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { NavLink, useLocation, useNavigate, useParams} from 'react-router-dom';
 import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
-import { containerCounter, containerMain, containerPlayStop, containerVideo, iconStyles, iconStylesDisabled, navLinkBack, navLinkContainer, navLinkReturn, navLinkfollowing } from "./styles/themes/theme";
-import { getNextCardId, getPrevCardId } from "./containers/video_recording/navigationCard";
+import { containerCounter, containerMain, containerPlayStop, containerVideo, iconStyles, iconStylesDisabled, navLinkBack, navLinkContainer, navLinkReturn, navLinkfollowing} from "./styles/themes/theme";
+// import { getNextCardId, getPrevCardId } from "./containers/video_recording/navigationCard";
+import { cardList } from "./containers/video_recording/ListCard";
 
 export const VideoRecording = () => {
     const navigate = useNavigate();
-    const location = useLocation();
-    const { data } = location.state;
+    // const location = useLocation();
+    // // const { data } = location.state;
+    const { id } = useParams()
+    const currentIndex = useMemo(() => {
+        return cardList.findIndex((card) => card._id === id);
+    }, [id]);
 
     const [cameraEnabled, setCameraEnabled] = useState(false);
     const [recording, setRecording] = useState(false);
     const [elapsedTime, setElapsedTime] = useState(0);
     const [isButtonPulsing, setIsButtonPulsing] = useState(false);
+
     
     const videoRef = useRef(null);
     const streamRef = useRef(null);
@@ -21,8 +27,8 @@ export const VideoRecording = () => {
     const mediaRecorderRef = useRef(null);
     const recordedChunksRef = useRef([]);
 
-    const prevCardId = getPrevCardId(data._id);
-    const nextCardId = getNextCardId(data._id); 
+    // const prevCardId = getPrevCardId(data._id);
+    // const nextCardId = getNextCardId(data._id); 
 
     const [dataNavegation,setDataNavegation]=useState({});
 
@@ -110,12 +116,29 @@ export const VideoRecording = () => {
         }
     };
 
-    const handleDataVideoClick = (datas)=>{
-        console.log("datas caama cruz",datas)
-        setDataNavegation(datas)
-        navigate(`/card/${datas._id}`, { state: { data: datas } });
-    }
+    // const handleDataVideoClick = (datas)=>{
+    //     console.log("datas caama cruz",datas)
+    //     setDataNavegation(datas)
+    //     navigate(`/card/${datas._id}`, { state: { data: datas } });
+    // }
 
+    const goToNextCard = () => {
+        if (currentIndex < cardList.length - 1) {
+          const nextCard = cardList[currentIndex + 1];
+          setDataNavegation(nextCard);
+          navigate(`/card/${nextCard._id}`);
+        }
+      };
+    
+      const goToPreviousCard = () => {
+        if (currentIndex > 0) {
+          const previousCard = cardList[currentIndex - 1];
+          setDataNavegation(previousCard);
+          navigate(`/card/${previousCard._id}`);
+        }
+      };
+    
+    const currentCard = cardList[currentIndex];
     useEffect(() => {
         if (cameraEnabled) {
             startCamera();
@@ -136,6 +159,13 @@ export const VideoRecording = () => {
         return () => clearInterval(timerId);
     }, [elapsedTime]);
 
+
+    useEffect(() => {
+        const currentCard = cardList[currentIndex];
+        navigate(`/card/${currentCard._id}`, { replace: true });
+    }, [currentIndex,navigate]);
+
+
     return (
         <div style={containerMain}>
             <div style={containerVideo}>
@@ -154,7 +184,7 @@ export const VideoRecording = () => {
                     {dataNavegation && dataNavegation.question ? (
                         <p style={{color:'black'}}>{dataNavegation.question}</p>
                     ) : (
-                        <p style={{color:'black'}}>{data.question}</p>
+                        <p style={{color:'black'}}>{currentCard.question}</p>
                     )}
 
                     {cameraEnabled ? (
@@ -179,7 +209,7 @@ export const VideoRecording = () => {
                 )}
 
                 <div style={navLinkContainer}>
-                    <NavLink 
+                    {/* <NavLink 
                         to={prevCardId ? `/card/${prevCardId._id}` : '#'} 
                         state={{ data: data }}
                         style={navLinkBack}
@@ -194,7 +224,9 @@ export const VideoRecording = () => {
                         onClick={() => handleDataVideoClick(nextCardId)}
                     >
                         Siguiente
-                    </NavLink>
+                    </NavLink> */}
+                    <button onClick={goToPreviousCard} style={navLinkBack} >Atrás</button>
+                    <button onClick={goToNextCard} style={navLinkfollowing}>Siguiente</button>
                 </div>
             </div>
         </div>

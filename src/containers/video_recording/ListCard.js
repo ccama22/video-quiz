@@ -18,5 +18,4 @@ export const cardList = [
       _id: uuidv4(),
       question: '¿Cuáles son tus comidas favoritas?',
     },
-    // Agrega más objetos de tarjetas según sea necesario
 ];
