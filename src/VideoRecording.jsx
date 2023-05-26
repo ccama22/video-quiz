@@ -21,11 +21,8 @@ export const VideoRecording = () => {
     const mediaRecorderRef = useRef(null);
     const recordedChunksRef = useRef([]);
 
-    const [prevCardId, setPrevCardId] = useState(null);
-    const [nextCardId, setNextCardId] = useState(null);
-
-    // const prevCardId = getPrevCardId(data._id);
-    // const nextCardId = getNextCardId(data._id); 
+    const prevCardId = getPrevCardId(data._id);
+    const nextCardId = getNextCardId(data._id); 
 
     const [dataNavegation,setDataNavegation]=useState({});
 
@@ -139,11 +136,6 @@ export const VideoRecording = () => {
         return () => clearInterval(timerId);
     }, [elapsedTime]);
 
-    useEffect(() => {
-        setPrevCardId(getPrevCardId(data._id));
-        setNextCardId(getNextCardId(data._id));
-    }, [data._id]);
-    
     return (
         <div style={containerMain}>
             <div style={containerVideo}>
@@ -188,7 +180,7 @@ export const VideoRecording = () => {
 
                 <div style={navLinkContainer}>
                     <NavLink 
-                        to={prevCardId ? `/card/${prevCardId._id}` : '#'}
+                        to={prevCardId ? `/card/${prevCardId._id}` : '#'} 
                         state={{ data: data }}
                         style={navLinkBack}
                         onClick={() => handleDataVideoClick(prevCardId)}
@@ -196,7 +188,8 @@ export const VideoRecording = () => {
                         Atras
                     </NavLink>
                     <NavLink 
-                        to={prevCardId ? `/card/${nextCardId._id}` : '#'}
+                        to={prevCardId ? `/card/${prevCardId._id}` : '#'} 
+                        state={{ data: data }}
                         style={navLinkfollowing}
                         onClick={() => handleDataVideoClick(nextCardId)}
                     >
