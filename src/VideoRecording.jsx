@@ -126,6 +126,8 @@ export const VideoRecording = () => {
         if (currentIndex < cardList.length - 1) {
           const nextCard = cardList[currentIndex + 1];
           setDataNavegation(nextCard);
+          stopCamera();
+          stopRecording();
           navigate(`/card/${nextCard._id}`);
         }
       };
@@ -133,6 +135,8 @@ export const VideoRecording = () => {
       const goToPreviousCard = () => {
         if (currentIndex > 0) {
           const previousCard = cardList[currentIndex - 1];
+          stopCamera();
+          stopRecording();
           setDataNavegation(previousCard);
           navigate(`/card/${previousCard._id}`);
         }
