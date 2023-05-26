@@ -113,7 +113,8 @@ export const navLinkBack ={
   textDecoration: 'none',
   marginLeft:'15px',
   backgroundColor:'white',
-  border: 'none'
+  border: 'none',
+  cursor:'pointer'
 }
 
 export const navLinkfollowing ={
@@ -123,7 +124,8 @@ export const navLinkfollowing ={
   textDecoration: 'none',
   marginLeft:'15px',
   backgroundColor:'white',
-  border: 'none'
+  border: 'none',
+  cursor:'pointer'
 }
 
 export const containerVideo ={

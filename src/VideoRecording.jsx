@@ -11,9 +11,11 @@ export const VideoRecording = () => {
     // const location = useLocation();
     // // const { data } = location.state;
     const { id } = useParams()
+
     const currentIndex = useMemo(() => {
         return cardList.findIndex((card) => card._id === id);
     }, [id]);
+    const currentCard = cardList[currentIndex];
 
     const [cameraEnabled, setCameraEnabled] = useState(false);
     const [recording, setRecording] = useState(false);
@@ -123,26 +125,39 @@ export const VideoRecording = () => {
     // }
 
     const goToNextCard = () => {
-        if (currentIndex < cardList.length - 1) {
-          const nextCard = cardList[currentIndex + 1];
-          setDataNavegation(nextCard);
-          stopCamera();
-          stopRecording();
-          navigate(`/card/${nextCard._id}`);
-        }
-      };
-    
-      const goToPreviousCard = () => {
-        if (currentIndex > 0) {
-          const previousCard = cardList[currentIndex - 1];
-          stopCamera();
-          stopRecording();
-          setDataNavegation(previousCard);
-          navigate(`/card/${previousCard._id}`);
-        }
-      };
-    
-    const currentCard = cardList[currentIndex];
+    if (currentIndex < cardList.length - 1) {
+        const nextCard = cardList[currentIndex + 1];
+        setDataNavegation(nextCard);
+        stopCamera();
+        stopRecording();
+        navigate(`/card/${nextCard._id}`);
+    } else {
+        console.log("ingreso")
+        const lastCard = cardList[0];
+        setDataNavegation(lastCard);
+        stopCamera();
+        stopRecording();
+        navigate(`/card/${lastCard._id}`);
+    }
+    };
+
+    const goToPreviousCard = () => {
+    if (currentIndex > 0) {
+        console.log("retroceso")
+        const previousCard = cardList[currentIndex - 1];
+        setDataNavegation(previousCard);
+        stopCamera();
+        stopRecording();
+        navigate(`/card/${previousCard._id}`);
+    } else {
+        console.log("ingreso")
+        const firstCard = cardList[cardList.length - 1];
+        setDataNavegation(firstCard);
+        stopCamera();
+        stopRecording();
+        navigate(`/card/${firstCard._id}`);
+    }
+    };
     useEffect(() => {
         if (cameraEnabled) {
             startCamera();
