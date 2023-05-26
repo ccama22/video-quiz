@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { NavLink, useLocation, useNavigate, useParams} from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { NavLink,useNavigate, useParams} from 'react-router-dom';
 import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import { containerCounter, containerMain, containerPlayStop, containerVideo, iconStyles, iconStylesDisabled, navLinkBack, navLinkContainer, navLinkReturn, navLinkfollowing} from "./styles/themes/theme";
@@ -39,26 +39,33 @@ export const VideoRecording = () => {
         const seconds = (time % 60).toString().padStart(2, '0');
         return `${minutes}:${seconds}`;
     };
-    const toggleButtonPulsing = () => {
-    setIsButtonPulsing((prevState) => !prevState);
-    };
-    const startRecording = () => {
-        if (cameraEnabled) {
-            recordedChunksRef.current = [];
-            setElapsedTime(0);
+    const toggleButtonPulsing = useCallback(() => {
+        setIsButtonPulsing((prevState) => !prevState);
+    }, [setIsButtonPulsing]);
     
-            const options = { mimeType: 'video/webm;codecs=vp9' };
-            mediaRecorderRef.current = new MediaRecorder(streamRef.current, options);
-    
-            mediaRecorderRef.current.addEventListener('dataavailable', handleDataAvailable);
-            mediaRecorderRef.current.start();
-    
-            setRecording(true);
-            toggleButtonPulsing(true);
+    const handleDataAvailable = useCallback((event) => {
+        if (event.data.size > 0) {
+          recordedChunksRef.current.push(event.data);
         }
-    };
+    }, []);
 
-    const startCamera = () => {
+    const startRecording = useCallback(() => {
+        if (cameraEnabled) {
+          recordedChunksRef.current = [];
+          setElapsedTime(0);
+      
+          const options = { mimeType: 'video/webm;codecs=vp9' };
+          mediaRecorderRef.current = new MediaRecorder(streamRef.current, options);
+      
+          mediaRecorderRef.current.addEventListener('dataavailable', handleDataAvailable);
+          mediaRecorderRef.current.start();
+      
+          setRecording(true);
+          toggleButtonPulsing(true);
+        }
+    }, [cameraEnabled, setElapsedTime, streamRef, handleDataAvailable, setRecording, toggleButtonPulsing]);
+
+    const startCamera = useCallback(() => {
         if (!cameraEnabled) {
           navigator.mediaDevices.getUserMedia({ video: true })
             .then((stream) => {
@@ -75,16 +82,16 @@ export const VideoRecording = () => {
               console.log('Error accessing camera:', error);
             });
         }
-    };
-    
-    const stopCamera = () => {
+      }, [cameraEnabled, recording, startRecording]);
+      
+      const stopCamera = useCallback(() => {
         if (streamRef.current) {
           const tracks = streamRef.current.getTracks();
           tracks.forEach((track) => track.stop());
           streamRef.current = null;
           setCameraEnabled(false);
         }
-    };
+      }, []);
     
     const handleToggleCamera = () => {
         if (cameraEnabled) {
@@ -101,7 +108,7 @@ export const VideoRecording = () => {
     }
     
       
-    const stopRecording = () => {
+    const stopRecording = useCallback(() => {
         if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
           mediaRecorderRef.current.removeEventListener('dataavailable', handleDataAvailable);
           mediaRecorderRef.current.stop();
@@ -109,20 +116,9 @@ export const VideoRecording = () => {
       
         setRecording(false);
         stopCamera();
-        setIsButtonPulsing(false)
-    };
-      
-    const handleDataAvailable = (event) => {
-        if (event.data.size > 0) {
-          recordedChunksRef.current.push(event.data);
-        }
-    };
+        setIsButtonPulsing(false);
+    }, [stopCamera,handleDataAvailable]);
 
-    // const handleDataVideoClick = (datas)=>{
-    //     console.log("datas caama cruz",datas)
-    //     setDataNavegation(datas)
-    //     navigate(`/card/${datas._id}`, { state: { data: datas } });
-    // }
 
     const goToNextCard = () => {
     if (currentIndex < cardList.length - 1) {
@@ -158,12 +154,7 @@ export const VideoRecording = () => {
         navigate(`/card/${firstCard._id}`);
     }
     };
-    useEffect(() => {
-        if (cameraEnabled) {
-            startCamera();
-        }
-    }, [cameraEnabled]);
-    
+
     useEffect(() => {
         let timerId;
           timerId = setInterval(() => {
@@ -173,10 +164,11 @@ export const VideoRecording = () => {
       
         if (elapsedTime >= 120) {
           stopRecording();
+          startCamera();
         }
       
         return () => clearInterval(timerId);
-    }, [elapsedTime]);
+    }, [elapsedTime,stopRecording,startCamera]);
 
 
     useEffect(() => {
